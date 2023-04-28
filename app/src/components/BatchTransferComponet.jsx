@@ -27,21 +27,26 @@ const BatchTransferComponent = () => {
   };
 
   return (
-    <section className="bg-black py-10">
+<section className="bg-black py-10">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-semibold mb-6 text-white">Batch Token Transfer</h2>
         <div className="bg-gray-900 rounded-lg shadow-md p-6">
           <label htmlFor="token-address" className="block text-lg font-semibold mb-2 text-white">
             Token Address
           </label>
-          <input
+          <select
             id="token-address"
-            type="text"
             value={tokenAddress}
             onChange={(e) => setTokenAddress(e.target.value)}
             className="w-full mb-8 p-2 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200 bg-black text-white"
-            placeholder="Enter the token contract address"
-          />
+          >
+            <option value="">Select a token</option>
+            <option value="ACA">Acala (ACA)</option>
+            <option value="AUSD">Acala Dollar (aUSD)</option>
+            <option value="DOT">Polkadot (DOT)</option>
+            <option value="LDOT">Liquid DOT (LDOT)</option>
+            {/* Add more native tokens as needed */}
+          </select>
 
           <label htmlFor="total-amount" className="block text-lg font-semibold mb-2 text-white">
             Total Amount
@@ -67,14 +72,14 @@ const BatchTransferComponent = () => {
                 placeholder="Wallet address"
               />
               <input
-                type="text"
-                value={pair.wallet}
+                type="number"
+                value={pair.amount}
                 onChange={(e) =>
-                  updateWalletAmountPair(index, { ...pair, wallet: e.target.value })
+                  updateWalletAmountPair(index, { ...pair, amount: e.target.value })
                 }
-                className="w-1/2 p-2 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200 bg-black text-white"
+                className="w-1/2 m-2 p-2 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200 bg-black text-white"
                 placeholder="Token amount"
-              />
+                />
                 <button
                 onClick={() => removeWalletAmountPair(index)}
                 className="text-red-600 m-2 text-2xl hover:text-red-800 transition-colors duration-200"
