@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 
 const BatchTransferComponent = () => {
   const [tokenAddress, setTokenAddress] = useState('');
-  const [walletAmountPairs, setWalletAmountPairs] = useState([{ wallet: '', amount: '' }]);
+  const [walletAmountPairs, setWalletAmountPairs] = useState([{ wallet: '', amount: 0 }]);
   const [totalAmount, setTotalAmount] = useState('');
 
   const addWalletAmountPair = () => {
-    setWalletAmountPairs([...walletAmountPairs, { wallet: '', amount: '' }]);
+    setWalletAmountPairs([...walletAmountPairs, { wallet: '', amount: 0 }]);
   };
 
   const removeWalletAmountPair = (indexToRemove) => {
@@ -18,12 +18,17 @@ const BatchTransferComponent = () => {
       walletAmountPairs.map((pair, index) => (index === indexToUpdate ? newPair : pair))
     );
   };
+  
+  const logKeyPairs = () => {
+    console.log(walletAmountPairs);
+  }
 
   const distributeEqually = () => {
     const equallyDistributedAmount = totalAmount / walletAmountPairs.length;
     setWalletAmountPairs(
       walletAmountPairs.map((pair) => ({ ...pair, amount: equallyDistributedAmount }))
     );
+    console.log(walletAmountPairs);
   };
 
   return (
@@ -74,7 +79,7 @@ const BatchTransferComponent = () => {
                 type="number"
                 value={pair.amount}
                 onChange={(e) =>
-                  updateWalletAmountPair(index, { ...pair, amount: e.target.value })
+                  updateWalletAmountPair(index, { ...pair, amount: Number(e.target.value) })
                 }
                 className="w-1/2 m-2 p-2 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200 bg-black text-white"
                 placeholder="Token amount"
@@ -100,6 +105,12 @@ const BatchTransferComponent = () => {
           className="bg-teal-500 hover:bg-teal-600 text-white py-2 px-6 rounded-lg transition-colors duration-200"
         >
           Distribute Equally
+        </button>
+        <button
+          onClick={logKeyPairs}
+          className="bg-teal-500 hover:bg-teal-600 text-white py-2 px-6 rounded-lg transition-colors duration-200"
+        >
+          Debug
         </button>
       </div>
     </div>
