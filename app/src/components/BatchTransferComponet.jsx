@@ -45,7 +45,6 @@ const BatchTransferComponent = () => {
             <option value="AUSD">Acala Dollar (aUSD)</option>
             <option value="DOT">Polkadot (DOT)</option>
             <option value="LDOT">Liquid DOT (LDOT)</option>
-            {/* Add more native tokens as needed */}
           </select>
 
           <label htmlFor="total-amount" className="block text-lg font-semibold mb-2 text-white">

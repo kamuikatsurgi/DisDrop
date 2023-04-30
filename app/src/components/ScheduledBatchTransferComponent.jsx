@@ -46,14 +46,19 @@ const ScheduledBatchTransferComponent = () => {
           <label htmlFor="token-address" className="block text-lg font-semibold mb-2 text-white">
             Token Address
           </label>
-          <input
+          <select
             id="token-address"
-            type="text"
             value={tokenAddress}
             onChange={(e) => setTokenAddress(e.target.value)}
             className="w-full mb-8 p-2 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200 bg-black text-white"
-            placeholder="Enter the token contract address"
-          />
+          >
+            <option value="">Select a token</option>
+            <option value="ACA">Acala (ACA)</option>
+            <option value="AUSD">Acala Dollar (aUSD)</option>
+            <option value="DOT">Polkadot (DOT)</option>
+            <option value="LDOT">Liquid DOT (LDOT)</option>
+            {/* Add more native tokens as needed */}
+          </select>
 
           <label htmlFor="total-amount" className="block text-lg font-semibold mb-2 text-white">
             Total Amount

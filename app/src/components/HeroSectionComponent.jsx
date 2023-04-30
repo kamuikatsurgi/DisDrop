@@ -1,7 +1,7 @@
 import React from 'react';
+import image from '../assets/image.jpg'
 
 const HeroSectionComponent = () => {
-  const dummyImageURL = 'https://via.placeholder.com/350x150'; // Replace with your desired URL
 
   return (
     <section className="bg-black text-white py-10">
@@ -18,7 +18,7 @@ const HeroSectionComponent = () => {
           </button>
         </div>
         <div className="md:w-1/2">
-          <img src={dummyImageURL} alt="Disdrop illustration" className="w-full h-auto transition-opacity duration-200 hover:opacity-90" />
+          <img src={image} alt="Disdrop illustration" className="w-full h-auto transition-opacity rounded-2xl duration-200 hover:opacity-90" />
         </div>
       </div>
     </section>
