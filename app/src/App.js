@@ -3,6 +3,7 @@ import HeaderComponent from './components/HeaderComponent';
 import './App.css';
 import HeroSectionComponent from './components/HeroSectionComponent';
 import CreateDisDropSection from './components/CreateDisdropSection';
+import FeatureSectionComponent from './components/FeaturesSectionComponent';
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
       <HeaderComponent />
       <HeroSectionComponent />
       <CreateDisDropSection />
+      <FeatureSectionComponent />
     </div>
   );
 }
