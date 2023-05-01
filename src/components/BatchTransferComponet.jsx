@@ -4,6 +4,8 @@ const BatchTransferComponent = () => {
   const [tokenAddress, setTokenAddress] = useState('');
   const [walletAmountPairs, setWalletAmountPairs] = useState([{ wallet: '', amount: 0 }]);
   const [totalAmount, setTotalAmount] = useState('');
+  const [custom, setCustom] = useState(false);
+  const [customAddr, setCustomAddr] = useState("");
 
   const addWalletAmountPair = () => {
     setWalletAmountPairs([...walletAmountPairs, { wallet: '', amount: 0 }]);
@@ -42,15 +44,39 @@ const BatchTransferComponent = () => {
           <select
             id="token-address"
             value={tokenAddress}
-            onChange={(e) => setTokenAddress(e.target.value)}
+            onChange={(e) => {
+              if(e.target.value == "custom") {
+                setCustom(true);
+                setTokenAddress(e.target.value);
+              } else {
+                setCustom(false);
+                setTokenAddress(e.target.value);
+              }
+            }}
             className="w-full mb-8 p-2 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200 bg-black text-white"
           >
             <option value="">Select a token</option>
-            <option value="ACA">Acala (ACA)</option>
-            <option value="AUSD">Acala Dollar (aUSD)</option>
-            <option value="DOT">Polkadot (DOT)</option>
-            <option value="LDOT">Liquid DOT (LDOT)</option>
+            <option value="0x0000000000000000000100000000000000000000">Acala (ACA)</option>
+            <option value="0x0000000000000000000100000000000000000001">Acala Dollar (aUSD)</option>
+            <option value="0x0000000000000000000100000000000000000002">Polkadot (DOT)</option>
+            <option value="0x0000000000000000000100000000000000000003">Liquid DOT (LDOT)</option>
+            <option value="0x00000000000000000001000000000000000000AB">Kintsugi (KINT)</option>
+            <option value="0x00000000000000000001000000000000000000aC">Kintsugi Bitcoin (KBTC)</option>
+            <option value="custom">Custom</option>
           </select>
+
+          {
+            custom ?  
+              <input
+              id="custom-addr"
+              type="text"
+              value={customAddr}
+              onChange={(e) => setCustomAddr(e.target.value)}
+              className="w-full mb-8 p-2 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200 bg-black text-white"
+              placeholder="Enter the token address"
+              />
+            : ""
+          }
 
           <label htmlFor="total-amount" className="block text-lg font-semibold mb-2 text-white">
             Total Amount

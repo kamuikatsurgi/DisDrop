@@ -8,10 +8,10 @@ import FeatureSectionComponent from './components/FeaturesSectionComponent';
 function App() {
   return (
     <div className="">
-      <HeaderComponent />
-      <HeroSectionComponent />
-      <CreateDisDropSection />
-      <FeatureSectionComponent />
+        <HeaderComponent />
+        <HeroSectionComponent />
+        <CreateDisDropSection />
+        <FeatureSectionComponent />
     </div>
   );
 }
