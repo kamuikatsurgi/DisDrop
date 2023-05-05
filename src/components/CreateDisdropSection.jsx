@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import BatchTransferComponent from './BatchTransferComponet';
 import ScheduledBatchTransferComponent from './ScheduledBatchTransferComponent';
+import PriceTargetedTransferComponent from './PriceTargetedTransferComponent';
 const CreateDisDropSection = () => {
   const [activeTab, setActiveTab] = useState(0);
 
@@ -48,7 +49,7 @@ const CreateDisDropSection = () => {
             )}
             {activeTab === 2 && (
               <div className={`${activeTab === 2 ? 'opacity-100' : 'opacity-0'}`}>
-                {/* Tab content for Tab 3 */}
+                <PriceTargetedTransferComponent />
               </div>
             )}
           </div>

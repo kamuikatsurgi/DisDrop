@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { DateTimePicker } from '@mui/x-date-pickers';
+import CustomDateTimePicker from './CustomDateTimePicker';
 
 const ScheduledBatchTransferComponent = () => {
   const [tokenAddress, setTokenAddress] = useState('');
@@ -43,11 +44,7 @@ const ScheduledBatchTransferComponent = () => {
             Transfer Date
           </label>
         <div>          
-          <DateTimePicker
-            label="Unlock Time"
-            value={transferDate}
-            onChange={(newValue) => setTransferDate(newValue)}
-            />
+          <CustomDateTimePicker />
         </div>
 
           <label htmlFor="token-address" className="block text-lg font-semibold mb-2 text-white">
@@ -110,7 +107,7 @@ const ScheduledBatchTransferComponent = () => {
                 onChange={(e) =>
                   updateWalletAmountPair(index, { ...pair, wallet: e.target.value })
                 }
-                className="w-1/2 p-2 border border-gray-700-rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200 bg-black text-white"
+                className="w-1/2 m-2 p-2 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200 bg-black text-white"
                 placeholder="Wallet address"
                 />
                 <input
