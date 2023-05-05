@@ -1,18 +1,18 @@
-import logo from './logo.svg';
-import HeaderComponent from './components/HeaderComponent';
 import './App.css';
-import HeroSectionComponent from './components/HeroSectionComponent';
-import CreateDisDropSection from './components/CreateDisdropSection';
-import FeatureSectionComponent from './components/FeaturesSectionComponent';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './views/Home';
+import Dashboard from './views/Dashboard';
 
 function App() {
   return (
-    <div className="">
-        <HeaderComponent />
-        <HeroSectionComponent />
-        <CreateDisDropSection />
-        <FeatureSectionComponent />
-    </div>
+    <Router>
+      <div className="">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
