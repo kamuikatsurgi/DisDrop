@@ -1,6 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import abi from '../assets/contract_abi.json';
+const { ethers } = require("ethers");
 
 const PriceTargetedTransferComponent = () => {
+
+  const ethprovider = new ethers.BrowserProvider(window.ethereum);
+  const [signer, setSigner] = useState();
+  const disContract = new ethers.Contract("0x836BfA9A113b024B6F9fa001E8Ba2990addE6226", abi.abi, signer);
+
   const [tokenAddress, setTokenAddress] = useState('');
   const [walletAmountPairs, setWalletAmountPairs] = useState([{ wallet: '', amount: 0 }]);
   const [totalAmount, setTotalAmount] = useState('');
@@ -35,6 +42,13 @@ const PriceTargetedTransferComponent = () => {
       targetPrice,
     });
   };
+
+  useEffect(() => {
+    (async () => {
+      const _signer = await ethprovider.getSigner();
+      setSigner(_signer);
+    })();
+  }, []);  
 
   return (
     <section className="bg-black py-10">

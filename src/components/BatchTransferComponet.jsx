@@ -1,6 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import abi from '../assets/contract_abi.json';
+const { ethers } = require("ethers");
 
 const BatchTransferComponent = () => {
+
+  const ethprovider = new ethers.BrowserProvider(window.ethereum);
+  const [signer, setSigner] = useState();
+  const disContract = new ethers.Contract("0x836BfA9A113b024B6F9fa001E8Ba2990addE6226", abi.abi, signer);
+
+  const onTransfer = async () => {
+    console.log(tokenAddress);
+  }
+
   const [tokenAddress, setTokenAddress] = useState('');
   const [walletAmountPairs, setWalletAmountPairs] = useState([{ wallet: '', amount: 0 }]);
   const [totalAmount, setTotalAmount] = useState('');
@@ -23,6 +34,7 @@ const BatchTransferComponent = () => {
   
   const logKeyPairs = () => {
     console.log(walletAmountPairs);
+    console.log(tokenAddress);
   }
 
   const distributeEqually = () => {
@@ -30,11 +42,17 @@ const BatchTransferComponent = () => {
     setWalletAmountPairs(
       walletAmountPairs.map((pair) => ({ ...pair, amount: equallyDistributedAmount }))
     );
-    console.log(walletAmountPairs);
   };
 
+  useEffect(() => {
+    (async () => {
+      const _signer = await ethprovider.getSigner();
+      setSigner(_signer);
+    })();
+  }, []);  
+
   return (
-<section className="bg-black py-10">
+    <section className="bg-black py-10">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-semibold mb-6 text-white">Batch Token Transfer</h2>
         <div className="bg-gray-900 rounded-lg shadow-md p-6">
@@ -59,7 +77,7 @@ const BatchTransferComponent = () => {
             <option value="0x0000000000000000000100000000000000000000">Acala (ACA)</option>
             <option value="0x0000000000000000000100000000000000000001">Acala Dollar (aUSD)</option>
             <option value="0x0000000000000000000100000000000000000002">Polkadot (DOT)</option>
-            <option value="0x0000000000000000000100000000000000000003">Liquid DOT (LDOT)</option>
+            <option value="0x0000000000000000000100000000000000000082">Kusama (KSM)</option>
             <option value="0x00000000000000000001000000000000000000AB">Kintsugi (KINT)</option>
             <option value="0x00000000000000000001000000000000000000aC">Kintsugi Bitcoin (KBTC)</option>
             <option value="custom">Custom</option>
@@ -79,11 +97,12 @@ const BatchTransferComponent = () => {
           }
 
           <label htmlFor="total-amount" className="block text-lg font-semibold mb-2 text-white">
-            Total Amount
+            Total Amount (Inc. Decimals)
           </label>
           <input
             id="total-amount"
             type="number"
+            min={1}
             value={totalAmount}
             onChange={(e) => setTotalAmount(e.target.value)}
             className="w-full mb-8 p-2 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200 bg-black text-white"
@@ -104,6 +123,7 @@ const BatchTransferComponent = () => {
               <input
                 type="number"
                 value={pair.amount}
+                min={1}
                 onChange={(e) =>
                   updateWalletAmountPair(index, { ...pair, amount: Number(e.target.value) })
                 }

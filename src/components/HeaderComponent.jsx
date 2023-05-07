@@ -1,37 +1,63 @@
 import React, {useState, useEffect} from 'react';
-import { WsProvider, ApiPromise } from '@polkadot/api';
-import { web3Accounts, web3Enable } from '@polkadot/extension-dapp';
-
-const NAME = "DisDrop";
+// import Web3 from 'web3';
+const { ethers } = require("ethers");
 
 const HeaderComponent = () => {
   const [api, setApi] = useState();
   const [connected, setConnected] = useState(false);
-  const [account, setAccount] = useState({ address : ""});
+  const [account, setAccount] = useState("");
+  const provider = window.ethereum;
+  const ethprovider = new ethers.BrowserProvider(window.ethereum);
+//  const web3 = new Web3(provider);
+  const signer = ethprovider.getSigner();
+
 
   const onConnect = async () => {
-    const extensions = await web3Enable(NAME);
-    
-    if(!extensions) {
-      throw Error("NO_EXTENSIONS_FOUND");
+    const _chainId = await provider.request({ method : "eth_chainId"});
+    if (_chainId.toString() !== "0x253" ){
+      try {
+        await provider.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: '0x253' }],
+        });
+      } catch (switchError) {
+        if (switchError.code === 4902) {
+          try {
+            await provider.request({
+              method: 'wallet_addEthereumChain',
+              params: [
+                {
+                  chainId: '0x253',
+                  chainName: 'Mandala',
+                  rpcUrls: ['https://eth-rpc-mandala.aca-staging.network'],
+                },
+              ],
+            });
+          } catch (addError) {
+            console.log(addError)
+          }
+        }
+      }
     }
-    
-    const allAccs = await web3Accounts();
-    setAccount(allAccs[0]);
-    setConnected(true);
-    console.log(allAccs[0]);
-  }
-
-  const setup = async () => {
-    const wsProvider = new WsProvider("wss://mandala-rpc.aca-staging.network/ws");
-    const api = await ApiPromise.create({provider : wsProvider});
-    setApi(api);
+    if(!connected) {
+      provider.request({method:'eth_requestAccounts'})
+      .then(res=>{
+        if(res){
+          setAccount(res);
+          setConnected(true);
+        }
+      })
+    } else {
+      setConnected(false);
+      setAccount("");
+    }
   }
 
   useEffect(() => {
-      setup();
+    (async () => {
+      
+    })();
   }, []);
-
 
   return (
     <header className="bg-black text-white font-poppins pt-4">
@@ -39,8 +65,8 @@ const HeaderComponent = () => {
         <div className="font-semibold text-lg">
           Disdrop
         </div>
-        <button onClick={ !connected ? onConnect : (()=>{})} className="bg-teal-500 hover:bg-teal-600 text-white py-4 px-6 rounded-full transform transition-transform duration-200 hover:scale-105">
-          { connected ? account.address.slice(0,10) + "..." : "Connect Wallet" }
+        <button onClick={onConnect} className="bg-teal-500 hover:bg-teal-600 text-white py-4 px-6 rounded-full transform transition-transform duration-200 hover:scale-105">
+          { connected ? account.slice(0,5) : "Connect Wallet" }
         </button>
       </div>
     </header>

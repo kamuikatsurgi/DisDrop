@@ -1,8 +1,14 @@
-import React, { useState } from 'react';
-import { DateTimePicker } from '@mui/x-date-pickers';
+import React, { useState, useEffect } from 'react';
+import abi from '../assets/contract_abi.json';
 import CustomDateTimePicker from './CustomDateTimePicker';
+const { ethers } = require("ethers");
 
 const ScheduledBatchTransferComponent = () => {
+
+  const ethprovider = new ethers.BrowserProvider(window.ethereum);
+  const [signer, setSigner] = useState();
+  const disContract = new ethers.Contract("0x836BfA9A113b024B6F9fa001E8Ba2990addE6226", abi.abi, signer);
+
   const [tokenAddress, setTokenAddress] = useState('');
   const [walletAmountPairs, setWalletAmountPairs] = useState([{ wallet: '', amount: 0 }]);
   const [totalAmount, setTotalAmount] = useState('');
@@ -34,6 +40,13 @@ const ScheduledBatchTransferComponent = () => {
       walletAmountPairs.map((pair) => ({ ...pair, amount: equallyDistributedAmount }))
     );
   };
+
+  useEffect(() => {
+    (async () => {
+      const _signer = await ethprovider.getSigner();
+      setSigner(_signer);
+    })();
+  }, []);  
 
   return (
     <section className="bg-black py-10">
@@ -68,7 +81,7 @@ const ScheduledBatchTransferComponent = () => {
             <option value="0x0000000000000000000100000000000000000000">Acala (ACA)</option>
             <option value="0x0000000000000000000100000000000000000001">Acala Dollar (aUSD)</option>
             <option value="0x0000000000000000000100000000000000000002">Polkadot (DOT)</option>
-            <option value="0x0000000000000000000100000000000000000003">Liquid DOT (LDOT)</option>
+            <option value="0x0000000000000000000100000000000000000082">Kusama (KSM)</option>
             <option value="0x00000000000000000001000000000000000000AB">Kintsugi (KINT)</option>
             <option value="0x00000000000000000001000000000000000000aC">Kintsugi Bitcoin (KBTC)</option>
             <option value="custom">Custom</option>
@@ -88,7 +101,7 @@ const ScheduledBatchTransferComponent = () => {
           }
 
           <label htmlFor="total-amount" className="block text-lg font-semibold mb-2 text-white">
-            Total Amount
+            Total Amount (Inc. Decimals)
           </label>
           <input
             id="total-amount"
