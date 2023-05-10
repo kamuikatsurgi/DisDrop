@@ -6,12 +6,63 @@ const PriceTargetedTransferComponent = () => {
 
   const ethprovider = new ethers.BrowserProvider(window.ethereum);
   const [signer, setSigner] = useState();
-  const disContract = new ethers.Contract("0x836BfA9A113b024B6F9fa001E8Ba2990addE6226", abi.abi, signer);
+  const disContract = new ethers.Contract(ethers.getAddress("0x26Baf3e72eb317bE940336b09A9d2eD73a74BF84"), abi.abi, signer);
 
-  const [tokenAddress, setTokenAddress] = useState('');
+  const tokAbi = ["function approve(address _spender, uint256 _value) public returns (bool success)"]
+  
+  const [tokenAddress, setTokenAddress] = useState();
   const [walletAmountPairs, setWalletAmountPairs] = useState([{ wallet: '', amount: 0 }]);
   const [totalAmount, setTotalAmount] = useState('');
+  const [custom, setCustom] = useState(false);
+  const [customAddr, setCustomAddr] = useState("");
   const [targetPrice, setTargetPrice] = useState('');
+  const [percentage, setPercentage] = useState(0);
+
+  const onTransfer = async () => {
+    //    console.log(walletAmountPairs);
+    
+        let total = 0;
+        let addrsTemp = [];
+        let amtsTemp = [];
+    
+        if(tokenAddress){
+          for(const i in walletAmountPairs) {
+            try { 
+              if(ethers.getAddress(walletAmountPairs[i].wallet)) {
+                addrsTemp.push(ethers.getAddress(walletAmountPairs[i].wallet));
+              }
+              if(walletAmountPairs[i].amount > 0) {
+                amtsTemp.push(walletAmountPairs[i].amount);
+                total += walletAmountPairs[i].amount;
+              }
+              else {
+                alert(`Amount cannot be zero for the address : ${walletAmountPairs[i].wallet}`);
+              }
+    
+            }
+            catch (error) {
+              alert(`"${walletAmountPairs[i].wallet}" is not a valid address, make sure to enter correct wallet addresses`);
+            }
+          }
+        }
+    
+    //    console.log(addrsTemp);
+    //    console.log(amtsTemp);
+        if(addrsTemp.length == walletAmountPairs.length && addrsTemp.length == amtsTemp.length && total == totalAmount) {
+          let consent = window.confirm("Do you want to proceed with the drop? Make sure all the details are correct!");
+          if(consent){
+            let contract = new ethers.Contract(ethers.getAddress(tokenAddress), tokAbi, signer);
+            const approv = await contract.approve(ethers.getAddress("0x26Baf3e72eb317bE940336b09A9d2eD73a74BF84"), totalAmount);
+            await approv.wait();
+            const tx = await disContract.priceTriggeredDispersal(ethers.getAddress(tokenAddress), addrsTemp, amtsTemp, targetPrice, 10, percentage);
+            await tx.wait();
+            console.log(tx);
+          }
+        }
+        else {
+          alert("Make sure that all the details are correct and the sum of amount matches with the total amounts");
+        }
+      }
 
   const addWalletAmountPair = () => {
     setWalletAmountPairs([...walletAmountPairs, { wallet: '', amount: 0 }]);
@@ -55,38 +106,82 @@ const PriceTargetedTransferComponent = () => {
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-semibold mb-6 text-white">Price Targeted Token Transfer</h2>
         <div className="bg-gray-900 rounded-lg shadow-md p-6">
-          <label htmlFor="token-address" className="block text-lg font-semibold mb-2 text-white">
+        <label htmlFor="token-address" className="block text-lg font-semibold mb-2 text-white">
             Token Address
           </label>
-          <input
+          <select
             id="token-address"
-            type="text"
             value={tokenAddress}
-            onChange={(e) => setTokenAddress(e.target.value)}
+            onChange={(e) => {
+              if(e.target.value == "custom") {
+                setCustom(true);
+                setTokenAddress(e.target.value);
+              } else {
+                setCustom(false);
+                setTokenAddress(e.target.value);
+              }
+            }}
             className="w-full mb-8 p-2 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200 bg-black text-white"
-            placeholder="Enter the token address"
-          />
+          >
+            <option value="">Select a token</option>
+            <option value="0x0000000000000000000100000000000000000000">Acala (ACA)</option>
+            <option value="0x0000000000000000000100000000000000000001">Acala Dollar (aUSD)</option>
+            <option value="0x0000000000000000000100000000000000000002">Polkadot (DOT)</option>
+            <option value="0x0000000000000000000100000000000000000082">Kusama (KSM)</option>
+            <option value="0x00000000000000000001000000000000000000AB">Kintsugi (KINT)</option>
+            <option value="0x00000000000000000001000000000000000000aC">Kintsugi Bitcoin (KBTC)</option>
+            <option value="custom">Custom</option>
+          </select>
+
+          {
+            custom ?  
+              <input
+              id="custom-addr"
+              type="text"
+              value={customAddr}
+              onChange={(e) => setCustomAddr(e.target.value)}
+              className="w-full mb-8 p-2 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200 bg-black text-white"
+              placeholder="Enter the token address"
+              />
+            : ""
+          }
 
           <label htmlFor="total-amount" className="block text-lg font-semibold mb-2 text-white">
-            Total Amount
+            Total Amount (Inc. Decimals)
           </label>
           <input
             id="total-amount"
             type="number"
             value={totalAmount}
+            min={1}
             onChange={(e) => setTotalAmount(e.target.value)}
             className="w-full mb-8 p-2 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200 bg-black text-white"
             placeholder="Enter the total amount to distribute"
           />
     
           <label htmlFor="target-price" className="block text-lg font-semibold mb-2 text-white">
-            Target Price
+            Target Price (In Whole Number)
           </label>
           <input
             id="target-price"
             type="number"
+            min={0}
             value={targetPrice}
             onChange={(e) => setTargetPrice(e.target.value)}
+            className="w-full mb-8 p-2 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200 bg-black text-white"
+            placeholder="Enter the target price"
+          />
+
+          <label htmlFor="target-price" className="block text-lg font-semibold mb-2 text-white">
+            Price Range Percentage
+          </label>
+          <input
+            id="target-price"
+            type="number"
+            min={0}
+            max={50}
+            value={percentage}
+            onChange={(e) => setPercentage(e.target.value)}
             className="w-full mb-8 p-2 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200 bg-black text-white"
             placeholder="Enter the target price"
           />
@@ -147,4 +242,3 @@ const PriceTargetedTransferComponent = () => {
 };
 
 export default PriceTargetedTransferComponent;
-

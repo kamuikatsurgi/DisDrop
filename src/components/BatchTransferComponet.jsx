@@ -6,7 +6,7 @@ const BatchTransferComponent = () => {
 
   const ethprovider = new ethers.BrowserProvider(window.ethereum);
   const [signer, setSigner] = useState();
-  const disContract = new ethers.Contract(ethers.getAddress("0x88299676450403d31C14cEbb180d89cA438643d4"), abi.abi, signer);
+  const disContract = new ethers.Contract(ethers.getAddress("0x26Baf3e72eb317bE940336b09A9d2eD73a74BF84"), abi.abi, signer);
 
   const tokAbi = ["function approve(address _spender, uint256 _value) public returns (bool success)"]
   
@@ -50,7 +50,7 @@ const BatchTransferComponent = () => {
       let consent = window.confirm("Do you want to proceed with the drop? Make sure all the details are correct!");
       if(consent){
         let contract = new ethers.Contract(ethers.getAddress(tokenAddress), tokAbi, signer);
-        const approv = await contract.approve(ethers.getAddress("0x88299676450403d31C14cEbb180d89cA438643d4"), totalAmount);
+        const approv = await contract.approve(ethers.getAddress("0x26Baf3e72eb317bE940336b09A9d2eD73a74BF84"), totalAmount);
         await approv.wait();
         const tx = await disContract.dispersal(ethers.getAddress(tokenAddress), addrsTemp, amtsTemp);
         await tx.wait();
@@ -202,7 +202,7 @@ const BatchTransferComponent = () => {
           onClick={onTransfer}
           className="bg-teal-500 hover:bg-teal-600 text-white py-2 px-6 rounded-lg transition-colors duration-200"
         >
-          Debug
+          Execute
         </button>
       </div>
     </div>
