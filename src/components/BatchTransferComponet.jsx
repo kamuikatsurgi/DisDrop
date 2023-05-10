@@ -6,8 +6,9 @@ const BatchTransferComponent = () => {
 
   const ethprovider = new ethers.BrowserProvider(window.ethereum);
   const [signer, setSigner] = useState();
-  const disContract = new ethers.Contract(ethers.getAddress("0x836BfA9A113b024B6F9fa001E8Ba2990addE6226"), abi.abi, signer);
+  const disContract = new ethers.Contract(ethers.getAddress("0x88299676450403d31C14cEbb180d89cA438643d4"), abi.abi, signer);
 
+  const tokAbi = ["function approve(address _spender, uint256 _value) public returns (bool success)"]
   
   const [tokenAddress, setTokenAddress] = useState();
   const [walletAmountPairs, setWalletAmountPairs] = useState([{ wallet: '', amount: 0 }]);
@@ -48,7 +49,10 @@ const BatchTransferComponent = () => {
     if(addrsTemp.length == walletAmountPairs.length && addrsTemp.length == amtsTemp.length && total == totalAmount) {
       let consent = window.confirm("Do you want to proceed with the drop? Make sure all the details are correct!");
       if(consent){
-        const tx = await disContract.simpleERC20BatchTransfer(ethers.getAddress(tokenAddress), addrsTemp, amtsTemp);
+        let contract = new ethers.Contract(ethers.getAddress(tokenAddress), tokAbi, signer);
+        const approv = await contract.approve(ethers.getAddress("0x88299676450403d31C14cEbb180d89cA438643d4"), totalAmount);
+        await approv.wait();
+        const tx = await disContract.dispersal(ethers.getAddress(tokenAddress), addrsTemp, amtsTemp);
         await tx.wait();
         console.log(tx);
       }

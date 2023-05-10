@@ -18,50 +18,39 @@ contract DisDrop{
     fallback() external payable{}
     receive() external payable{}
 
-    event ETHbatchTransfer(uint256 indexed recipientIndex, address indexed recipient, uint256 amount);
     event Erc20BatchTransfer(uint256 indexed recipientIndex, address indexed recipient, uint256 amount);
     event TransferScheduled(bytes indexed scheduleId, address indexed token, address[] recipients, uint256[] amounts, uint256 executionTime);
     event PriceCheckScheduled(bytes indexed scheduleId, uint256 nextCheckTime);
 
-    function simpleETHBatchTransfer(address payable[] memory recipients, uint256[] memory amount) payable public{
+    function dispersal(address tokenAddress, address[] memory recipients, uint256[] memory amount) payable public{
+        IERC20 token = IERC20(tokenAddress);
         require(recipients.length == amount.length , "Give inputs accordingly!");
-        require(msg.value > 0 , "You need to send some ETH please");
+        uint256 total = 0;
         for (uint256 i = 0; i < recipients.length; i++) {
-            recipients[i].transfer(amount[i]);
-            emit ETHbatchTransfer(i, recipients[i], amount[i]);
-        }
-        uint256 balance = address(this).balance;
-        if (balance > 0) {
-            payable(msg.sender).transfer(balance);
-        }
+            total = total + amount[i];
+            }
+        require(token.transferFrom(msg.sender, address(this), total) , "Token transferFrom failed! ");
+        for (uint256 i = 0; i < recipients.length; i++) {
+            require(token.transfer(recipients[i], amount[i]), "Token transfer failed");
+            emit Erc20BatchTransfer(i, recipients[i], amount[i]);
+            }
     }
 
-    function simpleERC20BatchTransfer(IERC20 token, address[] memory recipients, uint256[] memory amount) external{
-    require(recipients.length == amount.length , "Give inputs accordingly!");
-    uint256 total = 0;
-    for (uint256 i = 0; i < recipients.length; i++) {
-        total = total + amount[i];
-        }
-    require(token.transferFrom(msg.sender, address(this), total) , "Token transferFrom failed! ");
-    for (uint256 i = 0; i < recipients.length; i++) {
-        require(token.transfer(recipients[i], amount[i]), "Token transfer failed");
-        emit Erc20BatchTransfer(i, recipients[i], amount[i]);
-        }
-    }
-
-    function scheduleERC20BatchTransfer(IERC20 token, address[] memory recipients, uint256[] memory amounts, uint256 delay) payable public{
+    function scheduled_dispersal(address tokenAddress, address[] memory recipients, uint256[] memory amounts, uint256 delay) payable public{
+        IERC20 token = IERC20(tokenAddress);
         require(recipients.length == amounts.length, "Give inputs accordingly!");
         uint256 total = 0;
         for (uint256 i = 0; i < amounts.length; i++) {
             total = total + amounts[i];
         }
         require(token.transferFrom(msg.sender, address(this), total), "Token transfer failed!");
-        bytes memory data = abi.encodeWithSignature("executeERC20BatchTransfer(address,address[],uint256[])", address(token), recipients, amounts);
+        bytes memory data = abi.encodeWithSignature("executeERC20BatchTransfer(address,address[],uint256[])",tokenAddress, recipients, amounts);
         bytes memory scheduleId = scheduler.scheduleCall(address(this), 0, 2100000, 64000, delay, data);
-        emit TransferScheduled(scheduleId, address(token), recipients, amounts, block.timestamp + delay);
+        emit TransferScheduled(scheduleId,tokenAddress, recipients, amounts, block.timestamp + delay);
     }
 
-    function executeERC20BatchTransfer(IERC20 token, address[] memory recipients, uint256[] memory amounts) private{
+    function executeERC20BatchTransfer(address tokenAddress, address[] memory recipients, uint256[] memory amounts) private{
+        IERC20 token = IERC20(tokenAddress);
         require(recipients.length == amounts.length, "Mismatched recipients and amounts");
         for (uint256 i = 0; i < recipients.length; i++) {
             require(token.transfer(recipients[i], amounts[i]), "Token transfer failed");
@@ -69,26 +58,22 @@ contract DisDrop{
         }
     }
 
-    function getPrice(address token) public view returns (uint256){
-        uint256 price = oracle.getPrice(token);
-        return price;
-    }
-
-    function scheduleConditionalBatchTransfer(
-        IERC20 token,
+    function priceTriggeredDispersal(
+        address tokenAddress,
         address[] memory recipients,
         uint256[] memory amounts,
         uint256 desiredPrice,
         uint256 interval
-    ) public payable {
+    ) payable public{
+        IERC20 token = IERC20(tokenAddress);
         address spender = msg.sender;
         uint256 currentPrice = oracle.getPrice(address(token));
         if (currentPrice == desiredPrice) {
-            executeBatchTransfer(token, recipients, amounts, spender);
+            executeBatchTransfer(tokenAddress, recipients, amounts, spender);
         } else {
             bytes memory data = abi.encodeWithSignature(
-                "checkPriceAndTransfer(address,address[],uint256[],uint256,uint256,address)",
-                address(token),
+                "checkPriceandDisperse(address,address[],uint256[],uint256,uint256,address)",
+                tokenAddress,
                 recipients,
                 amounts,
                 desiredPrice,
@@ -100,28 +85,30 @@ contract DisDrop{
         }
     }
 
-    function checkPriceAndTransfer(
-        IERC20 token,
+    function checkPriceandDisperse(
+        address tokenAddress,
         address[] memory recipients,
         uint256[] memory amounts,
         uint256 desiredPrice,
         uint256 interval,
         address spender
-    ) public payable{
+    )private{
+        IERC20 token = IERC20(tokenAddress);
         uint256 currentPrice = oracle.getPrice(address(token));
         if (currentPrice == desiredPrice) {
-            executeBatchTransfer(token, recipients, amounts,spender);
+            executeBatchTransfer(tokenAddress, recipients, amounts,spender);
         } else {
-            scheduleConditionalBatchTransfer(token, recipients, amounts, desiredPrice, interval);
+            priceTriggeredDispersal(tokenAddress, recipients, amounts, desiredPrice, interval);
         }
     }
 
     function executeBatchTransfer(
-        IERC20 token,
+        address tokenAddress,
         address[] memory recipients,
         uint256[] memory amounts,
         address spender
-    ) private {
+    )private{
+        IERC20 token = IERC20(tokenAddress);
         require(recipients.length == amounts.length, "Mismatched recipients and amounts");
         uint256 totalAmount = 0;
         for (uint256 i = 0; i < amounts.length; i++) {

@@ -7,14 +7,66 @@ const ScheduledBatchTransferComponent = () => {
 
   const ethprovider = new ethers.BrowserProvider(window.ethereum);
   const [signer, setSigner] = useState();
-  const disContract = new ethers.Contract("0x836BfA9A113b024B6F9fa001E8Ba2990addE6226", abi.abi, signer);
+  const disContract = new ethers.Contract(ethers.getAddress("0x88299676450403d31C14cEbb180d89cA438643d4"), abi.abi, signer);
+
+  const tokAbi = ["function approve(address _spender, uint256 _value) public returns (bool success)"]
 
   const [tokenAddress, setTokenAddress] = useState('');
   const [walletAmountPairs, setWalletAmountPairs] = useState([{ wallet: '', amount: 0 }]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [totalAmount, setTotalAmount] = useState('');
-  const [transferDate, setTransferDate] = useState();
   const [custom, setCustom] = useState(false);
   const [customAddr, setCustomAddr] = useState("");
+
+  const onTransfer = async () => {
+    //    console.log(walletAmountPairs);
+        let currDate = new Date();
+        let total = 0;
+        let addrsTemp = [];
+        let amtsTemp = [];
+    
+        if(tokenAddress){
+          for(const i in walletAmountPairs) {
+            try { 
+              if(ethers.getAddress(walletAmountPairs[i].wallet)) {
+                addrsTemp.push(ethers.getAddress(walletAmountPairs[i].wallet));
+              }
+              if(walletAmountPairs[i].amount > 0) {
+                amtsTemp.push(walletAmountPairs[i].amount);
+                total += walletAmountPairs[i].amount;
+              }
+              else {
+                alert(`Amount cannot be zero for the address : ${walletAmountPairs[i].wallet}`);
+              }
+    
+            }
+            catch (error) {
+              alert(`"${walletAmountPairs[i].wallet}" is not a valid address, make sure to enter correct wallet addresses`);
+            }
+          }
+        }
+    
+    //    console.log(addrsTemp);
+    //    console.log(amtsTemp);
+        if(addrsTemp.length == walletAmountPairs.length && addrsTemp.length == amtsTemp.length && total == totalAmount && Math.ceil(Math.abs(selectedDate - currDate) / 15000) > 0) {
+          let consent = window.confirm("Do you want to proceed with the drop? Make sure all the details are correct!");
+          if(consent){
+            let contract = new ethers.Contract(ethers.getAddress(tokenAddress), tokAbi, signer);
+            const approv = await contract.approve(ethers.getAddress("0x88299676450403d31C14cEbb180d89cA438643d4"), totalAmount);
+            await approv.wait();
+            const tx = await disContract.scheduled_dispersal(ethers.getAddress(tokenAddress), addrsTemp, amtsTemp, Math.ceil(Math.abs(selectedDate - currDate) / 15000));
+            await tx.wait();
+            console.log(tx);
+          }
+        }
+        else {
+          alert("Make sure that all the details are correct and the sum of amount matches with the total amounts");
+        }
+      }
+
+  const handleDateChange = (newDate) => {
+    setSelectedDate(newDate);
+  };
 
   const addWalletAmountPair = () => {
     setWalletAmountPairs([...walletAmountPairs, { wallet: '', amount: 0 }]);
@@ -22,6 +74,9 @@ const ScheduledBatchTransferComponent = () => {
 
   const logKeyPairs = () => {
     console.log(walletAmountPairs);
+    console.log(selectedDate);
+    let currDate = new Date();
+    console.log(Math.ceil(Math.abs(selectedDate - currDate) / 15000));
   }
 
   const removeWalletAmountPair = (indexToRemove) => {
@@ -57,7 +112,7 @@ const ScheduledBatchTransferComponent = () => {
             Transfer Date
           </label>
         <div>          
-          <CustomDateTimePicker />
+        <CustomDateTimePicker value={selectedDate} onChange={handleDateChange} />
         </div>
 
           <label htmlFor="token-address" className="block text-lg font-semibold mb-2 text-white">
@@ -153,7 +208,7 @@ const ScheduledBatchTransferComponent = () => {
                   Distribute Equally
                 </button>
                 <button
-                  onClick={logKeyPairs}
+                  onClick={onTransfer}
                   className="bg-teal-500 hover:bg-teal-600 text-white py-2 px-6 rounded-lg transition-colors duration-200"
                 >
                   Debug
