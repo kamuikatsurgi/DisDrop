@@ -64,34 +64,35 @@ contract DisDrop{
         uint256[] memory amounts,
         uint256 desiredPrice,
         uint256 interval,
-        uint256 percentage,
-        address spender
-    ) public {
-        IERC20 token = IERC20(tokenAddress);
-        uint256 currentPrice = oracle.getPrice(address(token));
-        uint256 priceDifference = desiredPrice * percentage / 100;
+        uint256 percentage
+    ) payable public {
 
-        if (currentPrice >= desiredPrice-priceDifference && currentPrice <= desiredPrice+priceDifference){
-            require(recipients.length == amounts.length, "Mismatched recipients and amounts");
-            uint256 totalAmount = 0;
-            for(uint256 i = 0; i < amounts.length; i++){
-                totalAmount += amounts[i];
-            }
-            require(token.transferFrom(spender, address(this), totalAmount), "Token transfer failed");
-            for(uint256 i = 0; i < recipients.length; i++){
+        IERC20 token = IERC20(tokenAddress);
+        uint256 currentPrice = oracle.getPrice(tokenAddress);
+        uint256 priceDifference = desiredPrice * percentage / 100;
+        
+        if(msg.sender != address(this)){
+            require(recipients.length == amounts.length , "Give inputs accordingly!");
+            uint256 total = 0;
+            for (uint256 i = 0; i < recipients.length; i++) {
+                total = total + amounts[i];
+                }
+            require(token.transferFrom(msg.sender, address(this), total) , "Token transferFrom failed! ");
+        }
+        
+        if (currentPrice >= desiredPrice - priceDifference && currentPrice <= desiredPrice + priceDifference) {
+            for (uint256 i = 0; i < recipients.length; i++) {
                 token.transfer(recipients[i], amounts[i]);
             }
-            
-        } else {
+        }else{
             bytes memory data = abi.encodeWithSignature(
-                "priceTriggeredDispersal(address,address[],uint256[],uint256,uint256,uint256,address)",
+                "priceTriggeredDispersal(address,address[],uint256[],uint256,uint256,uint256)",
                 tokenAddress,
                 recipients,
                 amounts,
                 desiredPrice,
                 interval,
-                percentage,
-                spender
+                percentage
             );
             bytes memory scheduleId = scheduler.scheduleCall(address(this), 0, 2100000, 64000, interval, data);
             emit PriceCheckScheduled(scheduleId, block.timestamp + interval);

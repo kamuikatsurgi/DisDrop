@@ -55,7 +55,7 @@ const HeaderComponent = () => {
 
   useEffect(() => {
     (async () => {
-      
+      await onConnect();
     })();
   }, []);
 

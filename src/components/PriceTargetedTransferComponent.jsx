@@ -6,7 +6,7 @@ const PriceTargetedTransferComponent = () => {
 
   const ethprovider = new ethers.BrowserProvider(window.ethereum);
   const [signer, setSigner] = useState();
-  const disContract = new ethers.Contract(ethers.getAddress("0x26Baf3e72eb317bE940336b09A9d2eD73a74BF84"), abi.abi, signer);
+  const disContract = new ethers.Contract(ethers.getAddress("0x992511284Fcda6db4a8f3dD40a3dBa0Db97C05C3"), abi.abi, signer);
 
   const tokAbi = ["function approve(address _spender, uint256 _value) public returns (bool success)"]
   
@@ -52,7 +52,7 @@ const PriceTargetedTransferComponent = () => {
           let consent = window.confirm("Do you want to proceed with the drop? Make sure all the details are correct!");
           if(consent){
             let contract = new ethers.Contract(ethers.getAddress(tokenAddress), tokAbi, signer);
-            const approv = await contract.approve(ethers.getAddress("0x26Baf3e72eb317bE940336b09A9d2eD73a74BF84"), totalAmount);
+            const approv = await contract.approve(ethers.getAddress("0x992511284Fcda6db4a8f3dD40a3dBa0Db97C05C3"), totalAmount);
             await approv.wait();
             const tx = await disContract.priceTriggeredDispersal(ethers.getAddress(tokenAddress), addrsTemp, amtsTemp, targetPrice, 10, percentage);
             await tx.wait();
@@ -229,7 +229,7 @@ const PriceTargetedTransferComponent = () => {
               Distribute Equally
             </button>
             <button
-              onClick={logTransferData}
+              onClick={onTransfer}
               className="bg-teal-500 hover:bg-teal-600 text-white py-2 px-6 rounded-lg transition-colors duration-200"
             >
               Debug
