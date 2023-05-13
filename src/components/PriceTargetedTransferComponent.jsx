@@ -232,7 +232,7 @@ const PriceTargetedTransferComponent = () => {
               onClick={onTransfer}
               className="bg-teal-500 hover:bg-teal-600 text-white py-2 px-6 rounded-lg transition-colors duration-200"
             >
-              Debug
+              Execute
             </button>
           </div>
         </div>

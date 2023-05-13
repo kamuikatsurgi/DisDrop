@@ -52,8 +52,8 @@ const ScheduledBatchTransferComponent = () => {
           let consent = window.confirm("Do you want to proceed with the drop? Make sure all the details are correct!");
           if(consent){
             let contract = new ethers.Contract(ethers.getAddress(tokenAddress), tokAbi, signer);
-            const approv = await contract.approve(ethers.getAddress("0x26Baf3e72eb317bE940336b09A9d2eD73a74BF84"), totalAmount);
-            await approv.wait();
+          //  const approv = await contract.approve(ethers.getAddress("0x26Baf3e72eb317bE940336b09A9d2eD73a74BF84"), totalAmount);
+          //  await approv.wait();
             const tx = await disContract.scheduled_dispersal(ethers.getAddress(tokenAddress), addrsTemp, amtsTemp, Math.ceil(Math.abs(selectedDate - currDate) / 15000));
             await tx.wait();
             console.log(tx);

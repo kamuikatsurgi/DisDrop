@@ -50,8 +50,8 @@ const BatchTransferComponent = () => {
       let consent = window.confirm("Do you want to proceed with the drop? Make sure all the details are correct!");
       if(consent){
         let contract = new ethers.Contract(ethers.getAddress(tokenAddress), tokAbi, signer);
-        const approv = await contract.approve(ethers.getAddress("0x992511284Fcda6db4a8f3dD40a3dBa0Db97C05C3"), totalAmount);
-        await approv.wait();
+      //  const approv = await contract.approve(ethers.getAddress("0x992511284Fcda6db4a8f3dD40a3dBa0Db97C05C3"), totalAmount);
+      //  await approv.wait();
         const tx = await disContract.dispersal(ethers.getAddress(tokenAddress), addrsTemp, amtsTemp);
         await tx.wait();
         console.log(tx);
