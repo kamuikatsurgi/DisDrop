@@ -1,7 +1,7 @@
-To see our project in action, you can watch the [demo video here](https://youtu.be/nBOCj7v-MLs).
+Demo Video: https://youtu.be/nBOCj7v-MLs
 
-### Check out our Presentation Slides
-[![Presentation Preview](https://example.com/preview-image.png)](https://drive.google.com/file/d/16ttnLY8N_eXbZFiEEoOlCwAPkdcK_cZ0/view?usp=sharing)
+### Check out our Presentation Slides: 
+https://drive.google.com/file/d/16ttnLY8N_eXbZFiEEoOlCwAPkdcK_cZ0/view?usp=sharing
 
 Dive into our presentation slides to learn more about our project, its features, and the development process.
 
