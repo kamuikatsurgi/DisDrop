@@ -3,9 +3,6 @@ Demo Video: https://youtu.be/nBOCj7v-MLs
 ### Check out our Presentation Slides: 
 https://drive.google.com/file/d/16ttnLY8N_eXbZFiEEoOlCwAPkdcK_cZ0/view?usp=sharing
 
-Dive into our presentation slides to learn more about our project, its features, and the development process.
-
-
 <h1> DisDrop </h1>
 
 DisDrop is an innovative blockchain solution, built on Ethereum, that aims to revolutionize the way tokens are distributed within the decentralized finance (DeFi) space.
